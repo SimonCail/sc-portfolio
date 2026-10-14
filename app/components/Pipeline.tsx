@@ -2,6 +2,7 @@
 
 import { Check } from "lucide-react";
 import { useI18n } from "./I18nProvider";
+import { delay } from "../motion";
 
 type State = "done" | "running" | "waiting";
 
@@ -33,7 +34,9 @@ function Marker({ state }: { state: State }) {
   );
 }
 
-export default function Pipeline() {
+// `start` : moment (ms) ou la premiere etape s'allume ; les suivantes
+// suivent, comme un pipeline qui s'execute job apres job.
+export default function Pipeline({ start = 0 }: { start?: number }) {
   const { t } = useI18n();
   const p = t.hero.pipeline;
 
@@ -42,19 +45,23 @@ export default function Pipeline() {
       {p.stages.map((s, i) => {
         const state = s.state as State;
         const last = i === p.stages.length - 1;
+        const at = start + i * 240;
         return (
           <li key={s.name} className="relative flex gap-4 pb-6 sm:block sm:pb-0 sm:pr-4">
             {/* Trait vers l'etape suivante : vertical sur mobile, horizontal sinon. */}
             {!last && (
               <span
                 aria-hidden
-                className={`absolute left-[13px] top-7 h-[calc(100%-1.75rem)] w-0.5 sm:left-7 sm:top-[13px] sm:h-0.5 sm:w-[calc(100%-1.75rem)] ${
+                style={delay(at + 180)}
+                className={`stage-line absolute left-[13px] top-7 h-[calc(100%-1.75rem)] w-0.5 sm:left-7 sm:top-[13px] sm:h-0.5 sm:w-[calc(100%-1.75rem)] ${
                   state === "done" ? "bg-[var(--hero-ink)]" : "pipeline-dash"
                 }`}
               />
             )}
-            <Marker state={state} />
-            <div className="sm:mt-3">
+            <span className="stage-in block w-7 shrink-0" style={delay(at)}>
+              <Marker state={state} />
+            </span>
+            <div className="rise sm:mt-3" style={delay(at + 80)}>
               <p
                 className={`text-[0.97rem] font-bold leading-snug ${
                   state === "waiting" ? "underline decoration-dashed decoration-1 underline-offset-4" : ""

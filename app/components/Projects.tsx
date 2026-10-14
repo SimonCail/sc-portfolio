@@ -4,6 +4,7 @@ import Image from "next/image";
 import { useEffect, useRef } from "react";
 import Section from "./Section";
 import { useI18n } from "./I18nProvider";
+import { delay } from "../motion";
 import { GITHUB_URL } from "../site";
 
 type ContextKey = "personal" | "team" | "hackathon" | "academic";
@@ -270,6 +271,7 @@ function FeaturedPanel({ p, tone }: { p: Project; tone: "dark" | "light" }) {
 
   return (
     <article
+      data-reveal
       className={`overflow-hidden rounded-xl ${
         dark ? "featured-panel bg-[#0f5052] text-[#fffdfa]" : "bg-[var(--mint)] text-default"
       }`}
@@ -319,14 +321,14 @@ export default function Projects() {
         ))}
       </div>
 
-      <h3 className="mt-20 text-2xl font-semibold tracking-[-0.01em] text-default">
+      <h3 data-reveal className="mt-20 text-2xl font-semibold tracking-[-0.01em] text-default">
         {t.projects.others}
       </h3>
       <div className="mt-8 grid gap-x-8 gap-y-14 sm:grid-cols-2">
-        {rest.map((p) => {
+        {rest.map((p, i) => {
           const c = p[locale];
           return (
-            <article key={p.repo} className="group">
+            <article key={p.repo} data-reveal style={delay((i % 2) * 140)} className="group">
               {/* Capture entiere, centree sur un support vert d'eau (celui du CV). */}
               <div
                 className="relative overflow-hidden rounded-xl bg-[var(--mint)] px-5 pb-5 pt-5 sm:px-7 sm:pb-7 sm:pt-7"

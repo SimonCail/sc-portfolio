@@ -4,6 +4,7 @@ import { ArrowUpRight, Check, Copy, Download } from "lucide-react";
 import { useState } from "react";
 import Section from "./Section";
 import { useI18n } from "./I18nProvider";
+import { delay } from "../motion";
 import { CV_URL, EMAIL, GITHUB_URL, GITHUB_USER, LINKEDIN_URL } from "../site";
 
 // Meme gabarit que les autres sections (titre colle a gauche). Les
@@ -32,13 +33,15 @@ export default function Contact() {
 
   return (
     <Section id="contact" title={t.nav.contact}>
-      <p className="max-w-[22ch] text-[clamp(1.8rem,3.6vw,2.75rem)] font-semibold leading-[1.12] tracking-[-0.015em] text-default">
+      <p data-reveal className="max-w-[22ch] text-[clamp(1.8rem,3.6vw,2.75rem)] font-semibold leading-[1.12] tracking-[-0.015em] text-default">
         {t.contact.title}
       </p>
-      <p className="mt-4 max-w-[36em] text-lg text-muted">{t.contact.intro}</p>
+      <p data-reveal style={delay(100)} className="mt-4 max-w-[36em] text-lg text-muted">
+        {t.contact.intro}
+      </p>
 
       {/* L'adresse e-mail est l'action principale : un grand bloc petrole. */}
-      <div className="hero-block mt-10 flex flex-col gap-4 rounded-2xl p-6 sm:flex-row sm:items-center sm:justify-between sm:p-8">
+      <div data-reveal style={delay(180)} className="hero-block mt-10 flex flex-col gap-4 rounded-2xl p-6 sm:flex-row sm:items-center sm:justify-between sm:p-8">
         <div className="min-w-0">
           <p className="text-sm opacity-80">{t.contact.rows.email}</p>
           <a
@@ -58,7 +61,7 @@ export default function Contact() {
         </button>
       </div>
 
-      <dl className="mt-8 divide-y divide-[var(--rule)] border-y border-rule">
+      <dl data-reveal style={delay(260)} className="mt-8 divide-y divide-[var(--rule)] border-y border-rule">
         {rows.map((r) => (
           <div key={r.label} className="flex items-baseline justify-between gap-6 py-4">
             <dt className="text-muted">{r.label}</dt>

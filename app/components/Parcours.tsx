@@ -2,6 +2,7 @@
 
 import Section from "./Section";
 import { useI18n } from "./I18nProvider";
+import { delay } from "../motion";
 
 // Le parcours est presente comme un journal : une entree par annee, la plus
 // recente en haut, reliees par un trait facon "git log --graph".
@@ -12,9 +13,9 @@ export default function Parcours() {
     <Section id="parcours" title={t.journey.title} intro={t.journey.intro}>
       <ol className="relative max-w-4xl pl-9">
         {/* Trait de branche facon "git log --graph" */}
-        <span aria-hidden className="absolute bottom-3 left-[7px] top-3 w-0.5 bg-[var(--rule)]" />
+        <span aria-hidden data-reveal="grow-y" className="absolute bottom-3 left-[7px] top-3 w-0.5 bg-[var(--rule)]" />
         {t.journey.events.map((e, i) => (
-          <li key={e.year} className="relative grid gap-2 pb-9 last:pb-0 sm:grid-cols-12 sm:gap-8">
+          <li key={e.year} data-reveal style={delay(i * 90)} className="relative grid gap-2 pb-9 last:pb-0 sm:grid-cols-12 sm:gap-8">
             <span
               aria-hidden
               className={`absolute -left-9 top-[0.35em] h-4 w-4 rounded-full border-2 border-[var(--accent)] ${

@@ -5,6 +5,8 @@ import { useEffect, useState } from "react";
 import ThemeToggle from "./ThemeToggle";
 import LocaleToggle from "./LocaleToggle";
 import { useI18n } from "./I18nProvider";
+import Logo from "./Logo";
+import { delay } from "../motion";
 
 export default function Nav() {
   const { t } = useI18n();
@@ -26,7 +28,7 @@ export default function Nav() {
   }, [open]);
 
   return (
-    <header className="sticky top-0 z-40 border-b border-rule bg-[color-mix(in_srgb,var(--bg)_92%,transparent)] backdrop-blur-sm">
+    <header className="nav-in sticky top-0 z-40 border-b border-rule bg-[color-mix(in_srgb,var(--bg)_92%,transparent)] backdrop-blur-sm">
       <a
         href="#contenu"
         className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-3 focus:z-50 focus:bg-surface focus:px-3 focus:py-2"
@@ -34,8 +36,14 @@ export default function Nav() {
         {t.skip}
       </a>
       <nav className="mx-auto flex h-16 max-w-page items-center justify-between gap-4 px-5 sm:px-8">
-        <a href="#top" className="text-[1.05rem] font-bold tracking-[-0.01em] text-default">
-          Simon Caillieret
+        <a
+          href="#top"
+          className="logo-link flex items-center gap-2.5 text-[1.05rem] font-bold tracking-[-0.01em] text-default"
+        >
+          <Logo animate className="h-8 w-8 shrink-0" />
+          <span className="rise" style={delay(700)}>
+            Simon Caillieret
+          </span>
         </a>
 
         <ul className="hidden items-center gap-7 lg:flex">

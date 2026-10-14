@@ -16,7 +16,7 @@ export default function Section({
   return (
     <section id={id} aria-labelledby={`${id}-title`} className="mx-auto max-w-page px-5 sm:px-8">
       <div className="grid gap-8 border-t border-rule py-16 sm:py-20 lg:grid-cols-12 lg:gap-10">
-        <header className="lg:col-span-4 xl:col-span-3">
+        <header data-reveal className="lg:col-span-4 xl:col-span-3">
           <div className="lg:sticky lg:top-24">
             <h2
               id={`${id}-title`}
@@ -24,7 +24,7 @@ export default function Section({
             >
               {title}
             </h2>
-            <span aria-hidden className="mt-4 block h-1 w-10 rounded-full bg-[var(--accent)]" />
+            <span aria-hidden className="section-bar mt-4 block h-1 w-10 rounded-full bg-[var(--accent)]" />
             {intro && <p className="mt-4 max-w-sm text-base text-muted">{intro}</p>}
           </div>
         </header>

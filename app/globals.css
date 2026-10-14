@@ -96,22 +96,6 @@ section[id] {
     color: var(--accent);
     text-decoration-color: currentColor;
   }
-
-  /* Le seul moment orchestre de la page : les lignes du titre montent une
-     a une au chargement. */
-  .reveal-line {
-    display: block;
-    overflow: hidden;
-  }
-  .reveal-line > span {
-    display: block;
-    transform: translateY(105%);
-    animation: line-up 0.8s cubic-bezier(0.2, 0.7, 0.1, 1) forwards;
-  }
-  .fade-in {
-    opacity: 0;
-    animation: fade 0.6s ease forwards;
-  }
 }
 
 @layer components {
@@ -167,6 +151,315 @@ section[id] {
   }
 }
 
+/* ============================================================ MOUVEMENT
+   Deux temps : l'arrivee sur la page (logo qui se dessine, barre de nav,
+   colonne petrole qui se deplie, titre mot par mot, pipeline qui s'execute
+   etape par etape), puis des apparitions discretes au defilement.
+   Tout est coupe si le visiteur a demande de reduire les animations. */
+
+:root {
+  --ease-out: cubic-bezier(0.2, 0.7, 0.1, 1);
+  --ease-pop: cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* --- Logo -------------------------------------------------------- */
+.logo-dot {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+.logo-animate .logo-tile {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: logo-tile 0.55s var(--ease-pop) both;
+}
+.logo-animate .logo-s,
+.logo-animate .logo-c {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: draw 0.7s var(--ease-out) both;
+}
+.logo-animate .logo-s { animation-delay: 0.25s; }
+.logo-animate .logo-c { animation-delay: 0.55s; }
+.logo-animate .logo-dot {
+  transform: scale(0);
+  animation: pop 0.45s var(--ease-pop) 1.05s forwards;
+}
+/* Au survol du lien d'accueil, le point "fait signe". */
+.logo-link:hover .logo-dot,
+.logo-link:focus-visible .logo-dot {
+  animation: nudge 0.6s var(--ease-out);
+}
+
+/* --- Arrivee sur la page ------------------------------------------ */
+.nav-in {
+  animation: nav-in 0.6s var(--ease-out) both;
+}
+
+/* Element qui monte en fondu ; le decalage vient de la variable --d. */
+.rise {
+  animation: rise 0.8s var(--ease-out) var(--d, 0ms) both;
+}
+
+/* La colonne petrole se deplie de bas en haut. */
+.unfold {
+  animation: unfold 0.9s var(--ease-out) 0.15s both;
+}
+
+/* Photo : petit zoom arriere pendant que la colonne s'ouvre. */
+.photo-in {
+  animation: photo-in 1s var(--ease-out) 0.35s both;
+}
+
+/* Titre : chaque mot sort d'un cache, l'un apres l'autre. */
+.word {
+  display: inline-block;
+  overflow: hidden;
+  vertical-align: top;
+  padding-bottom: 0.12em;
+  margin-bottom: -0.12em;
+}
+.word > span {
+  display: inline-block;
+  animation: word-up 0.85s var(--ease-out) var(--d, 0ms) both;
+}
+
+/* Pipeline : les etapes s'allument dans l'ordre, les traits se tracent. */
+.stage-in {
+  animation: pop 0.5s var(--ease-pop) var(--d, 0ms) both;
+}
+.stage-line {
+  animation: trace 0.5s var(--ease-out) var(--d, 0ms) both;
+}
+
+/* --- Au defilement ------------------------------------------------- */
+.js-reveal [data-reveal] {
+  opacity: 0;
+  transform: translateY(28px);
+  transition:
+    opacity 0.7s ease var(--d, 0ms),
+    transform 0.9s var(--ease-out) var(--d, 0ms);
+}
+.js-reveal [data-reveal].is-in {
+  opacity: 1;
+  transform: none;
+}
+/* Trait vertical du parcours : il pousse de haut en bas. */
+.js-reveal [data-reveal="grow-y"] {
+  opacity: 1;
+  transform: scaleY(0);
+  transform-origin: top;
+  transition: transform 1.4s var(--ease-out) 0.1s;
+}
+/* Barre d'accent sous les titres de section : elle s'allonge. */
+.section-bar {
+  transform-origin: left;
+}
+.js-reveal [data-reveal] .section-bar {
+  transform: scaleX(0);
+  transition: transform 0.8s var(--ease-out) 0.25s;
+}
+.js-reveal [data-reveal].is-in .section-bar {
+  transform: none;
+}
+
+/* --- Ecran d'arrivee (voir Intro.tsx) ------------------------------ */
+@property --p {
+  syntax: "<integer>";
+  initial-value: 0;
+  inherits: false;
+}
+
+.intro-overlay {
+  display: none;
+}
+html.intro,
+html.intro-exit {
+  overflow: hidden;
+}
+html.intro {
+  background: var(--hero);
+}
+html.intro .intro-overlay,
+html.intro-exit .intro-overlay {
+  display: block;
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  pointer-events: none;
+}
+html.intro .intro-overlay {
+  pointer-events: auto;
+  cursor: pointer;
+}
+.intro-curtain {
+  position: absolute;
+  inset: 0;
+  background: var(--hero);
+  /* Filet de securite : si le JS ne prend jamais la main, l'ecran s'efface. */
+  animation: intro-failsafe 0.6s ease 5s forwards;
+}
+.intro-stage {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 2.25rem;
+  color: var(--hero-ink);
+  animation: intro-failsafe 0.6s ease 5s forwards;
+}
+.intro-mark {
+  width: clamp(8.5rem, 30vw, 13.5rem);
+  aspect-ratio: 1;
+  transition: transform 0.9s cubic-bezier(0.7, 0, 0.2, 1);
+  will-change: transform;
+}
+.intro-mark svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+.intro-tile {
+  opacity: 0;
+  transition: opacity 0.45s ease 0.3s;
+}
+.intro-s,
+.intro-c {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: draw 0.85s var(--ease-out) both;
+}
+.intro-s { animation-delay: 0.45s; }
+.intro-c { animation-delay: 0.75s; }
+.intro-dot,
+.intro-ring {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+/* Le point arrive seul, le monogramme se construit autour de lui. */
+.intro-dot {
+  animation: pop 0.5s var(--ease-pop) 0.1s both;
+}
+/* Quand tout est vert, une onde part du point. */
+.intro-ring {
+  opacity: 0;
+  animation: intro-ring 0.9s ease-out 1.75s;
+}
+
+.intro-meta {
+  display: grid;
+  justify-items: center;
+  gap: 0.7rem;
+  font-family: "IBM Plex Mono", ui-monospace, monospace;
+  font-size: 0.9rem;
+  letter-spacing: 0.05em;
+  animation: rise 0.6s var(--ease-out) 0.25s both;
+}
+.intro-bar {
+  width: 14rem;
+  height: 2px;
+  background: var(--hero-rule);
+  overflow: hidden;
+  border-radius: 2px;
+}
+.intro-bar > span {
+  display: block;
+  height: 100%;
+  background: var(--signal);
+  transform-origin: left;
+  animation: intro-fill 1.45s cubic-bezier(0.55, 0, 0.25, 1) 0.3s both;
+}
+.intro-steps {
+  display: flex;
+  gap: 1.1rem;
+}
+.intro-steps > span:not(.intro-count) {
+  opacity: 0.35;
+  animation: intro-step 0.3s ease forwards;
+}
+.intro-steps > span:nth-child(1) { animation-delay: 0.75s; }
+.intro-steps > span:nth-child(2) { animation-delay: 1.2s; }
+.intro-steps > span:nth-child(3) { animation-delay: 1.65s; }
+.intro-count {
+  min-width: 3ch;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  opacity: 0.7;
+  counter-reset: p var(--p);
+  animation: intro-count 1.45s cubic-bezier(0.55, 0, 0.25, 1) 0.3s both;
+}
+.intro-count::after {
+  content: counter(p);
+}
+
+/* Sortie : le rideau remonte, le monogramme file vers la nav. */
+html.intro-exit .intro-curtain {
+  animation: intro-curtain 0.9s cubic-bezier(0.7, 0, 0.2, 1) forwards;
+}
+html.intro-exit .intro-meta {
+  animation: intro-fade 0.3s ease forwards;
+}
+html.intro-exit .intro-tile {
+  opacity: 1;
+}
+html.intro-exit .intro-ring {
+  animation: none;
+}
+
+/* Pendant l'intro, les animations de la page attendent leur tour. */
+html.intro .nav-in,
+html.intro .rise,
+html.intro .unfold,
+html.intro .photo-in,
+html.intro .word > span,
+html.intro .stage-in,
+html.intro .stage-line,
+html.intro .logo-animate * {
+  animation-play-state: paused;
+}
+/* Le logo de la nav reste cache tant que le monogramme n'a pas atterri. */
+html.intro .logo-link .logo,
+html.intro-exit .logo-link .logo {
+  opacity: 0;
+}
+/* Apres l'intro, la nav est deja en place et son logo deja dessine. */
+html.intro-landed .nav-in,
+html.intro-landed .logo-animate * {
+  animation: none;
+}
+html.intro-landed .logo-animate .logo-s,
+html.intro-landed .logo-animate .logo-c {
+  stroke-dashoffset: 0;
+}
+html.intro-landed .logo-animate .logo-dot {
+  transform: none;
+}
+
+@keyframes intro-fill {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+@keyframes intro-count {
+  to { --p: 100; }
+}
+@keyframes intro-step {
+  to { opacity: 1; }
+}
+@keyframes intro-ring {
+  0% { opacity: 0.9; transform: scale(1); }
+  100% { opacity: 0; transform: scale(4); }
+}
+@keyframes intro-curtain {
+  to { transform: translateY(-100%); }
+}
+@keyframes intro-fade {
+  to { opacity: 0; }
+}
+@keyframes intro-failsafe {
+  to { opacity: 0; visibility: hidden; }
+}
+
 @keyframes spin {
   to { transform: rotate(360deg); }
 }
@@ -174,24 +467,73 @@ section[id] {
   0% { transform: scale(1); opacity: 0.7; }
   80%, 100% { transform: scale(2); opacity: 0; }
 }
-
-@keyframes line-up {
-  to { transform: translateY(0); }
+/* Le trait reste invisible avant de partir : sinon ses bouts arrondis
+   s'affichent comme deux petits points. */
+@keyframes draw {
+  0% { stroke-dashoffset: 1; opacity: 0; }
+  1% { opacity: 1; }
+  100% { stroke-dashoffset: 0; opacity: 1; }
 }
-@keyframes fade {
-  to { opacity: 1; }
+@keyframes pop {
+  from { transform: scale(0); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+@keyframes logo-tile {
+  from { transform: scale(0.6) rotate(-8deg); opacity: 0; }
+  to { transform: none; opacity: 1; }
+}
+@keyframes nudge {
+  0%, 100% { transform: none; }
+  40% { transform: translateX(3px) scale(1.25); }
+}
+@keyframes nav-in {
+  from { transform: translateY(-100%); opacity: 0; }
+  to { transform: none; opacity: 1; }
+}
+@keyframes rise {
+  from { transform: translateY(22px); opacity: 0; }
+  to { transform: none; opacity: 1; }
+}
+@keyframes unfold {
+  from { clip-path: inset(100% 0 0 0 round 16px); }
+  to { clip-path: inset(0 0 0 0 round 16px); }
+}
+@keyframes photo-in {
+  from { transform: scale(1.15); opacity: 0; }
+  to { transform: none; opacity: 1; }
+}
+@keyframes word-up {
+  from { transform: translateY(110%); }
+  to { transform: none; }
+}
+@keyframes trace {
+  from { clip-path: inset(0 100% 100% 0); }
+  to { clip-path: inset(0 0 0 0); }
 }
 
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
   .spin-slow,
-  .pulse-ring {
-    animation: none;
+  .pulse-ring,
+  .logo-animate *,
+  .logo-link:hover .logo-dot,
+  .nav-in,
+  .rise,
+  .unfold,
+  .photo-in,
+  .word > span,
+  .stage-in,
+  .stage-line {
+    animation: none !important;
   }
-  .reveal-line > span,
-  .fade-in {
-    animation: none;
+  .logo-animate .logo-s,
+  .logo-animate .logo-c {
+    stroke-dashoffset: 0;
+  }
+  .logo-animate .logo-dot {
     transform: none;
-    opacity: 1;
+  }
+  .intro-overlay {
+    display: none !important;
   }
 }

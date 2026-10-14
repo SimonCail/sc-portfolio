@@ -9,6 +9,7 @@ import "@fontsource/ibm-plex-mono/500.css";
 import "./globals.css";
 import { ThemeProvider } from "./components/ThemeProvider";
 import { I18nProvider } from "./components/I18nProvider";
+import RevealObserver from "./components/RevealObserver";
 
 export const viewport: Viewport = {
   width: "device-width",
@@ -64,7 +65,31 @@ const themeInit = `
   if (t !== "light" && t !== "dark") {
     t = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
   }
-  document.documentElement.classList.add(t);
+  var root = document.documentElement;
+  root.classList.add(t);
+  // Apparitions au defilement : seulement si JS tourne et si le visiteur
+  // n'a pas demande de reduire les animations.
+  if ("IntersectionObserver" in window &&
+      !window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    root.classList.add("js-reveal");
+
+    // Ecran d'arrivee "SC" : une fois par visite (?intro pour le forcer),
+    // pas si on arrive sur une ancre comme #contact.
+    var seen = null;
+    try { seen = sessionStorage.getItem("intro-seen"); } catch (e) {}
+    var force = /[?&]intro(=|&|$)/.test(location.search);
+    if (force || (!seen && !location.hash)) {
+      root.classList.add("intro");
+      try { sessionStorage.setItem("intro-seen", "1"); } catch (e) {}
+      // Filet de securite si le JS de la page ne se charge pas.
+      setTimeout(function () {
+        if (root.classList.contains("intro")) {
+          root.classList.remove("intro");
+          root.classList.add("intro-landed");
+        }
+      }, 5000);
+    }
+  }
 })();
 `;
 
@@ -78,6 +103,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <I18nProvider>
           <ThemeProvider>{children}</ThemeProvider>
         </I18nProvider>
+        <RevealObserver />
       </body>
     </html>
   );

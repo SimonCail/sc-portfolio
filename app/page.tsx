@@ -6,10 +6,12 @@ import Parcours from "./components/Parcours";
 import Skills from "./components/Skills";
 import Contact from "./components/Contact";
 import Footer from "./components/Footer";
+import Intro from "./components/Intro";
 
 export default function Home() {
   return (
     <>
+      <Intro />
       <Nav />
       <main id="contenu">
         <Hero />

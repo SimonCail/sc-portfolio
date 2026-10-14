@@ -1,4 +1,5 @@
 import { ImageResponse } from "next/og";
+import { LOGO_C, LOGO_S } from "./components/Logo";
 
 export const runtime = "edge";
 export const alt = "Simon Caillieret cherche une alternance DevOps à Lille ou Lens";
@@ -28,7 +29,17 @@ export default async function OpengraphImage() {
         }}
       >
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-          <span style={{ fontSize: 30, fontWeight: 600 }}>Simon Caillieret</span>
+          <div style={{ display: "flex", alignItems: "center", gap: 20 }}>
+            <svg width="64" height="64" viewBox="0 0 64 64">
+              <rect width="64" height="64" rx="14" fill="#fffdfa" />
+              <g fill="none" stroke="#0f5052" strokeWidth="5.4" strokeLinecap="round">
+                <path d={LOGO_S} />
+                <path d={LOGO_C} />
+              </g>
+              <circle cx="50.23" cy="32" r="3.3" fill="#5fb8ae" />
+            </svg>
+            <span style={{ fontSize: 30, fontWeight: 600 }}>Simon Caillieret</span>
+          </div>
         </div>
         <div
           style={{

@@ -2,6 +2,7 @@
 
 import Section from "./Section";
 import { useI18n } from "./I18nProvider";
+import { delay } from "../motion";
 
 export default function Skills() {
   const { t } = useI18n();
@@ -14,7 +15,7 @@ export default function Skills() {
           // pointilles : ce n'est pas encore acquis.
           const learning = gi === t.skills.groups.length - 1;
           return (
-            <div key={g.name}>
+            <div key={g.name} data-reveal style={delay((gi % 2) * 120)}>
               <h3 className="font-bold text-default">{g.name}</h3>
               <ul className="mt-3 flex flex-wrap gap-2">
                 {g.items.map((s) => (

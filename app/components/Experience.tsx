@@ -16,7 +16,7 @@ export default function Experience() {
     <Section id="experiences" title={t.experience.title} intro={t.experience.intro}>
       <ol className="space-y-14">
         {jobs.map((job) => (
-          <li key={job.company} className="grid gap-5 md:grid-cols-12 md:gap-8">
+          <li key={job.company} data-reveal className="grid gap-5 md:grid-cols-12 md:gap-8">
             <div className="flex items-start gap-4 md:col-span-4 md:flex-col md:gap-3">
               <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-md border border-rule bg-white">
                 <Image src={job.logo} alt="" fill sizes="48px" className="object-cover" />
@@ -49,7 +49,7 @@ export default function Experience() {
         ))}
       </ol>
 
-      <div className="mt-16 grid gap-5 border-t border-rule pt-8 md:grid-cols-12 md:gap-8">
+      <div data-reveal className="mt-16 grid gap-5 border-t border-rule pt-8 md:grid-cols-12 md:gap-8">
         <h3 className="text-lg font-bold text-default md:col-span-4">{t.experience.sideJobs.title}</h3>
         <ul className="space-y-3 md:col-span-7 md:col-start-6">
           {t.experience.sideJobs.items.map((job) => (
